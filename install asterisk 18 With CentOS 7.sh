@@ -65,3 +65,16 @@ sed -i 's/;rungroup = asterisk/rungroup = asterisk/g' /etc/asterisk/asterisk.con
 systemctl restart asterisk
 systemctl status asterisk
 systemctl enable asterisk
+
+echo "----------------- Copy sip.conf >> pjsip.conf.bak -----------------"
+cp /etc/asterisk/pjsip.conf ~/testsh/etc/asterisk/pjsip.conf.bak
+
+echo "----------------- Create pjsip_inbound.conf -----------------------"
+touch /etc/asterisk/pjsip_inbound.conf
+
+printf "[inboundtrunk]\ntype=endpoint\ntransport=transport-udp\ncontext=from-internal\ndisallow=all\nallow=ulaw\nallow=alaw\noutbound_auth=inboundtrunk_auth\naors=inboundtrunk\nrtp_symmetric=yes\nforce_rport=yes\ndirect_media=yes\nice_support=yes\n\n[inboundtrunk]\ntype=aor\ncontact=sip::5060\n\n[inboundtrunk]\ntype=identify\nendpoint=inboundtrunk\nmatch=" >> /etc/asterisk/pjsip_inbound.conf
+
+echo "----------------- Create pjsip_outbound.conf ----------------------"
+touch /etc/asterisk/pjsip_outbound.conf
+
+printf "[outboundtrunk]\ntype=endpoint\ntransport=transport-udp\ncontext=from-external\ndisallow=all\nallow=ulaw\nallow=alaw\noutbound_auth=outboundtrunk_auth\naors=outboundtrunk\nrtp_symmetric=yes\nforce_rport=yes\ndirect_media=yes\nice_support=yes\n\n[outboundtrunk]\ntype=aor\ncontact=sip::5060\n\n[outboundtrunk]\ntype=identify\nendpoint=outboundtrunk\nmatch=" >> /etc/asterisk/pjsip_outbound.conf
